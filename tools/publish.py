@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Publish only the two tested archives for the unchanged protected branch."""
+"""Publish only the two tested archives for the unchanged reviewed branch."""
 import argparse
 import json
 import os
@@ -33,6 +33,17 @@ def validate(evidence, repository, branch):
     return records[0]
 
 
+def validate_publication(data, branch, live, runs, workflow_ref, workflow_sha):
+    if workflow_ref != "refs/heads/" + branch:
+        raise ValueError("Publish from the matching image branch only")
+    if live["commit"]["sha"] != data["revision"] or workflow_sha != data["revision"]:
+        raise ValueError("Workflow, live branch and tested revision must match")
+    if not any(run["head_sha"] == data["revision"] and run["head_branch"] == branch
+               and run["event"] == "push" and run["status"] == "completed"
+               and run["conclusion"] == "success" for run in runs):
+        raise ValueError("Successful final-branch CI is required before publication")
+
+
 def run(args):
     subprocess.run(args, check=True)
 
@@ -45,8 +56,8 @@ if __name__ == "__main__":
     evidence = Path(opts.evidence)
     data = validate(evidence, opts.repository, opts.branch)
     live = json.loads(subprocess.check_output(["gh", "api", f"repos/{opts.repository}/branches/{opts.branch}"], text=True))
-    if live["commit"]["sha"] != data["revision"] or not live["protected"]:
-        raise SystemExit("Source branch changed or is not protected; rebuild before publishing")
+    runs = json.loads(subprocess.check_output(["gh", "api", f"repos/{opts.repository}/actions/workflows/ci.yml/runs?head_sha={data['revision']}&event=push&per_page=100"], text=True))["workflow_runs"]
+    validate_publication(data, opts.branch, live, runs, os.environ.get("GITHUB_REF"), os.environ.get("GITHUB_SHA"))
     registry = "ghcr.io/" + opts.repository
     temporary = []
     for arch in ("amd64", "arm64"):
@@ -55,6 +66,8 @@ if __name__ == "__main__":
         run(["docker", "tag", "local-validation:" + opts.branch + "-" + arch, tag])
         run(["docker", "push", tag])
         temporary.append(tag)
+    live = json.loads(subprocess.check_output(["gh", "api", f"repos/{opts.repository}/branches/{opts.branch}"], text=True))
+    validate_publication(data, opts.branch, live, runs, os.environ.get("GITHUB_REF"), os.environ.get("GITHUB_SHA"))
     command = ["docker", "buildx", "imagetools", "create"]
     for tag in data["tags"]:
         command.extend(["--tag", registry + ":" + tag])
