@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
-from publish import validate
+from publish import validate, validate_publication
 
 
 class PublishTests(unittest.TestCase):
@@ -41,3 +41,41 @@ class PublishTests(unittest.TestCase):
         record = json.loads(path.read_text()); record["repository"] = "other/image"
         path.write_text(json.dumps(record))
         with self.assertRaises(ValueError): self.validate()
+
+
+class PublicationPolicyTests(unittest.TestCase):
+    def setUp(self):
+        self.data = {"revision": "a" * 40}
+        self.live = {"commit": {"sha": "a" * 40}, "protected": False}
+        self.runs = [{"head_sha": "a" * 40, "head_branch": "alpinevpn",
+                      "event": "push", "status": "completed", "conclusion": "success"}]
+
+    def check(self, ref="refs/heads/alpinevpn", sha="a" * 40):
+        validate_publication(self.data, "alpinevpn", self.live, self.runs, ref, sha)
+
+    def test_unprotected_reviewed_branch_passes(self):
+        self.check()
+
+    def test_wrong_workflow_branch_rejected(self):
+        with self.assertRaises(ValueError): self.check(ref="refs/heads/workflows")
+
+    def test_wrong_workflow_revision_rejected(self):
+        with self.assertRaises(ValueError): self.check(sha="b" * 40)
+
+    def test_moved_live_branch_rejected(self):
+        self.live["commit"]["sha"] = "b" * 40
+        with self.assertRaises(ValueError): self.check()
+
+    def test_missing_ci_rejected(self):
+        self.runs = []
+        with self.assertRaises(ValueError): self.check()
+
+    def test_unsuitable_ci_rejected(self):
+        for key, value in [("head_sha", "b" * 40), ("head_branch", "noblevpn"),
+                           ("event", "pull_request"), ("status", "in_progress"),
+                           ("conclusion", "failure"), ("conclusion", "skipped")]:
+            with self.subTest(key=key, value=value):
+                old = self.runs[0][key]
+                self.runs[0][key] = value
+                with self.assertRaises(ValueError): self.check()
+                self.runs[0][key] = old
