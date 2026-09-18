@@ -54,9 +54,9 @@ jobs:
             echo BUILD_ARGS
             echo "revision=$(git -C image rev-parse HEAD)"
           } >> "$GITHUB_OUTPUT"
-      - uses: docker/setup-buildx-action@v4.3.0
+      - uses: docker/setup-buildx-action@v4.4.1
       - name: Build without publishing
-        uses: docker/build-push-action@v7.3.0
+        uses: docker/build-push-action@v7.4.0
         with:
           context: image
           file: image/linux-${{ matrix.arch }}.Dockerfile
