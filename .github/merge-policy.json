@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "enabled": true,
+  "ci_workflow": "ci.yml",
+  "required_checks": [
+    "guard",
+    "hygiene",
+    "image / build (amd64, ubuntu-24.04)",
+    "image / build (arm64, ubuntu-24.04-arm)",
+    "ci / required"
+  ],
+  "optional_checks": [],
+  "check_app_id": 15368,
+  "renovate": {
+    "login": "renovate[bot]",
+    "id": 29139614
+  },
+  "renovate_comment": "/merge-when-green v2",
+  "minimum_approvals": 0,
+  "deploy_workflows": []
+}
