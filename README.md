@@ -10,7 +10,7 @@ CI checks web/API startup, version, configuration ownership, actual media probin
 
 Upstream GPL-3.0 image license and application/dependency licenses remain applicable.
 
-Shared CI and Renovate presets use automation `v3.0.0`. The custom checked merger
+Shared CI and Renovate presets use automation `v3.0.1`. The custom checked merger
 is retired. Renovate automerge is explicitly disabled pending verified required
 CI enforcement and a native Renovate canary. The read-only PR policy check
 preserves sign-offs, Conventional Commit titles, review and hold requirements.
