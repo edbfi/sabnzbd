@@ -5,19 +5,6 @@ on:
   push:
     branches: [release, testing, nightly]
   workflow_dispatch:
-    inputs:
-      pr-number:
-        description: PR number for guarded CI
-        type: string
-        default: ''
-      expected-head-sha:
-        description: Exact PR commit
-        type: string
-        default: ''
-      expected-default-sha:
-        description: Exact default-branch commit
-        type: string
-        default: ''
 permissions:
   contents: read
   pull-requests: read
@@ -25,18 +12,7 @@ concurrency:
   group: ci-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
-  guard:
-    runs-on: ubuntu-26.04
-    timeout-minutes: 5
-    steps:
-      - uses: edbfi/automation/actions/dispatch-guard@v3.1.0
-        with:
-          token: ${{ github.token }}
-          pr-number: ${{ inputs.pr-number }}
-          expected-head-sha: ${{ inputs.expected-head-sha }}
-          expected-default-sha: ${{ inputs.expected-default-sha }}
   hygiene:
-    needs: guard
     runs-on: ubuntu-26.04
     timeout-minutes: 15
     steps:
@@ -66,28 +42,21 @@ jobs:
           done
       - run: git diff --exit-code HEAD
   image:
-    needs: guard
     uses: ./.github/workflows/build-on-call.yml
     with:
-      image: ${{ github.base_ref || (inputs.pr-number != '' && github.event.repository.default_branch) || github.ref_name }}
+      image: ${{ github.base_ref || github.ref_name }}
       ref: ${{ github.sha }}
   required:
     name: ci / required
     if: always()
-    needs: [guard, hygiene, image]
+    needs: [hygiene, image]
     runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
-      - uses: edbfi/automation/actions/dispatch-guard@v3.1.0
-        with:
-          token: ${{ github.token }}
-          pr-number: ${{ inputs.pr-number }}
-          expected-head-sha: ${{ inputs.expected-head-sha }}
-          expected-default-sha: ${{ inputs.expected-default-sha }}
-      - uses: edbfi/automation/actions/gate@v3.1.0
+      - uses: edbfi/automation/actions/gate@v4.0.0
         with:
           needs: ${{ toJSON(needs) }}
-          required: guard hygiene image
+          required: hygiene image
 defaults:
   run:
     shell: bash
