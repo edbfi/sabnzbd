@@ -1,5 +1,0 @@
-# SPDX-License-Identifier: GPL-3.0-only
-# GitHub-hosted label not yet known to the pinned actionlint release.
-self-hosted-runner:
-  labels:
-    - ubuntu-26.04
