@@ -1,5 +1,5 @@
 {
-  "description": "Pinned nightly snapshot",
+  "description": "Every commit to develop",
   "test_amd64": true,
   "test_arm64": true,
   "test_url": "http://localhost:8080",
