@@ -7,7 +7,7 @@
   "upstream_tag": "alpinevpn",
   "upstream_tag_sha": "alpinevpn-8f56ce1",
   "upstream_tag_sha__command": "json=$(cat meta.json) && upstream_image=$(jq -re '.upstream_image' <<< \"${json}\") && upstream_image_base=$(basename \"${upstream_image}\") && upstream_tag=$(jq -re '.upstream_tag' <<< \"${json}\") && tags_json=$(curl -fsSL ${GITHUB_TOKEN:+--header \"Authorization: Bearer ${GITHUB_TOKEN}\"} \"https://web.edb.fi/containers/${upstream_image_base}-tags.json\") && commit_sha=$(jq -r --arg tag \"${upstream_tag}\" '.[$tag].commit_sha' <<< \"${tags_json}\") && upstream_tag_sha=${upstream_tag}-${commit_sha:0:7} && echo \"${upstream_tag_sha}\"",
-  "version": "45f846682558c6837ffc1e5d86666362a27aad51",
+  "version": "d4ec301df9a4ae511c5f54a351e97e46eaaedaa2",
   "version__command": "curl -fsSL ${GITHUB_TOKEN:+--header \"Authorization: Bearer ${GITHUB_TOKEN}\"} \"https://api.github.com/repos/sabnzbd/sabnzbd/commits/develop\" | jq -re '.sha'",
   "version_par2turbo": "1.5.0",
   "version_par2turbo__command": "curl -fsSL ${GITHUB_TOKEN:+--header \"Authorization: Bearer ${GITHUB_TOKEN}\"} \"https://api.github.com/repos/animetosho/par2cmdline-turbo/releases/latest\" | jq -re '.tag_name' | sed -E 's/^v//'"
