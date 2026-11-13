@@ -8,6 +8,7 @@
   <a href="https://github.com/moby/moby" title="Moby source, the open-source foundation of Docker Engine"><img src="https://img.shields.io/badge/Docker-2496ED?style=flat&amp;logo=docker&amp;logoColor=white" alt="Docker"></a>
   <a href="https://github.com/python/cpython" title="CPython implementation source"><img src="https://img.shields.io/badge/Python-3776AB?style=flat&amp;logo=python&amp;logoColor=white" alt="Python"></a>
   <a href="https://github.com/sabnzbd/sabnzbd" title="SABnzbd source"><img src="https://img.shields.io/badge/SABnzbd-FFB300?style=flat" alt="SABnzbd"></a>
+  <a href="https://github.com/edbfi/sabnzbd/actions/workflows/call-build.yml?query=branch%3Arelease"><img src="https://img.shields.io/github/actions/workflow/status/edbfi/sabnzbd/call-build.yml?branch=release&amp;event=push&amp;label=CI&amp;style=flat" alt="CI"></a>
 </p>
 
 Based on [hotio/sabnzbd](https://github.com/hotio/sabnzbd), retaining the bundled `ffprobe` customization at `/app/bin/ffprobe`.
